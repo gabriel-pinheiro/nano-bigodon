@@ -1,6 +1,6 @@
 # nano-bigodon
 
-nano-bigodon is a minimal implementation of the Bigodon templating engine on Express.js in under 40 lines of code. It allows you to execute Bigodon templates with a simple REST API.
+nano-bigodon is a minimal implementation of the Bigodon templating engine on Express.js in under 50 lines of code. It allows you to execute Bigodon templates with a simple REST API.
 
 ## Features
 

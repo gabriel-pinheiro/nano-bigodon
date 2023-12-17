@@ -16,24 +16,34 @@ bigodon.addHelper('log', (...args: any[]) => console.log(...args));
 
 app.post('/execute', async (req: Request, res: Response) => {
     try {
-        const { template: source, context } = req.body;
-
-        const template = bigodon.compile(source);
-        const output = await template(context, { maxExecutionMillis: EXECUTION_LIMIT });
-
-        res.type('text/plain')
-           .send(output);
+        validateBody(req.body);
+        const template = bigodon.compile(req.body.template);
+        const output = await template(req.body.context, { maxExecutionMillis: EXECUTION_LIMIT });
+        res.type('text/plain').send(output);
     } catch (error) {
-        if (error instanceof Error) {
-            console.error(error.message);
-            res.status(422).json({ error: error.message });
-        } else {
-            console.error(error);
-            res.status(500).json({ error: 'An unknown error occurred' });
-        }
+        handleError(error, res);
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
+
+function validateBody(body: any): void {
+    if (!body.template) {
+        throw new Error("The 'template' field is required");
+    }
+
+    if (typeof body.context !== 'object' || !body.context || Array.isArray(body.context)) {
+        throw new Error("The 'context' field must be an object");
+    }
+}
+
+function handleError(error: unknown, res: Response): void {
+    if (error instanceof Error) {
+        console.error(error.message);
+        res.status(422).json({ error: error.message });
+        return;
+    }
+
+    console.error(error);
+    res.status(500).json({ error: 'An unknown error occurred' });
+}
